@@ -166,3 +166,73 @@
   window.addEventListener('resize', updateProgress);
   updateProgress();
 })();
+
+// Public, aggregate GoatCounter statistics. The offline preview never contacts it.
+(() => {
+  'use strict';
+  const root = document.documentElement;
+  const value = document.getElementById('visit-count');
+  if (!value || root.dataset.mode !== 'static') return;
+
+  const publicOrigin = 'https://criterio-ia-derecho.github.io';
+  const publicBase = '/criterio-ia/';
+  const expectedPath = root.dataset.pagePath;
+  // Only a generated page at its exact public URL is eligible. Collapse index.html.
+  const publicPath = () => {
+    if (location.origin !== publicOrigin || typeof expectedPath !== 'string') return null;
+    if (expectedPath !== publicBase && !/^\/criterio-ia\/articulos\/[a-z0-9-]+\.html$/.test(expectedPath)) return null;
+    const currentPath = location.pathname === publicBase + 'index.html' ? publicBase : location.pathname;
+    return currentPath === expectedPath ? expectedPath : null;
+  };
+  if (!publicPath()) {
+    value.textContent = 'Solo en el sitio publicado';
+    return;
+  }
+
+  // count.js also sends location.search as q, independently of its path setting.
+  // Exclude URLs with query parameters rather than disclose query values.
+  if (!location.search) {
+    window.goatcounter = {
+      no_events: true,
+      path: () => location.search ? null : publicPath(),
+      referrer: '',
+      title: ''
+    };
+    const script = document.createElement('script');
+    script.src = 'https://gc.zgo.at/count.js';
+    script.async = true;
+    script.referrerPolicy = 'no-referrer';
+    script.dataset.goatcounter = 'https://criterioia.goatcounter.com/count';
+    document.head.appendChild(script);
+  }
+
+  // Read the public TOTAL endpoint once; it may be cached for up to four hours.
+  // The server must have “Allow adding visitor counts on your website” enabled.
+  if (!window.fetch || !window.AbortController) return;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  value.textContent = 'Consultando…';
+  (async () => {
+    try {
+      const response = await fetch('https://criterioia.goatcounter.com/counter/TOTAL.json?start=2026-10-11', {
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+        signal: controller.signal
+      });
+      if (!response.ok) throw new Error('Counter unavailable');
+      const data = await response.json();
+      // GoatCounter returns count as a formatted string, not an HTML fragment.
+      const count = data && data.count;
+      if (typeof count !== 'string' || count.length > 30 ||
+          !/^(?:0|[1-9]\d*|[1-9]\d{0,2}(?:[, .\u00a0\u202f]\d{3})+)$/.test(count)) {
+        throw new Error('Invalid counter response');
+      }
+      value.textContent = count;
+      value.classList.add('is-count');
+    } catch (_) {
+      value.textContent = 'No disponible';
+    } finally {
+      clearTimeout(timeout);
+    }
+  })();
+})();
