@@ -12,6 +12,10 @@
   const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
   const search = $('#case-search');
   const topic = $('#topic-select');
+  const month = $('#month-select');
+  const sort = $('#sort-select');
+  const clearFilters = $('#clear-filters');
+  const monthGroups = $$('.archive-month');
   const cards = $$('.case-card');
   let country = 'all';
   let toastTimer;
@@ -24,17 +28,31 @@
   };
   const applyFilters = () => {
     if (!search) return;
+    // Older cached pages do not yet include the publication controls.
+    const selectedMonth = month ? month.value : '';
     const query = normalize(search.value);
     const terms = query.split(/\s+/).filter(Boolean);
     let count = 0;
     cards.forEach(card => {
       const text = normalize(card.dataset.search || card.textContent);
       const show = (country === 'all' || card.dataset.country === country) &&
-        (!topic.value || card.dataset.topic === topic.value) && terms.every(term => text.includes(term));
+        (!topic.value || card.dataset.topic === topic.value) &&
+        (!selectedMonth || (card.dataset.published || '').startsWith(selectedMonth)) && terms.every(term => text.includes(term));
       card.hidden = !show;
       count += Number(show);
     });
-    $('#results-count').textContent = count === 1 ? '1 lectura disponible' : `${count} lecturas disponibles`;
+    const direction = sort && sort.value === 'asc' ? 1 : -1;
+    // ISO dates sort chronologically; ties retain the editorial order.
+    monthGroups.slice().sort((a, b) => direction * a.dataset.month.localeCompare(b.dataset.month)).forEach(group => {
+      const items = $$('.case-card', group);
+      const visible = items.filter(card => !card.hidden).length;
+      group.hidden = visible === 0;
+      $('.month-count', group).textContent = visible === 1 ? '1 nota' : `${visible} notas`;
+      items.sort((a, b) => direction * a.dataset.published.localeCompare(b.dataset.published) || Number(a.dataset.order) - Number(b.dataset.order)).forEach(card => $('.article-grid', group).append(card));
+      $('#archive-months').append(group);
+    });
+    $('#results-count').textContent = count === 1 ? '1 nota disponible' : `${count} notas disponibles`;
+    if (clearFilters) clearFilters.hidden = !(search.value || topic.value || selectedMonth || country !== 'all');
     $('#empty-results').hidden = count !== 0;
     $('#clear-search').hidden = !search.value;
   };
@@ -42,17 +60,23 @@
     $$('.search-tools').forEach(item => { item.hidden = false; });
     search.addEventListener('input', applyFilters);
     topic.addEventListener('change', applyFilters);
+    if (month) month.addEventListener('change', applyFilters);
+    if (sort) sort.addEventListener('change', applyFilters);
+    window.addEventListener('pageshow', applyFilters);
     $$('.filter-button').forEach(button => button.addEventListener('click', () => {
       country = button.dataset.country;
       $$('.filter-button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
       applyFilters();
     }));
     $('#clear-search').addEventListener('click', () => { search.value = ''; applyFilters(); search.focus(); });
-    $('#reset-filters').addEventListener('click', () => {
+    const resetFilters = () => {
       search.value = ''; topic.value = ''; country = 'all';
+      if (month) month.value = '';
       $$('.filter-button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.country === 'all')));
       applyFilters(); search.focus();
-    });
+    };
+    $('#reset-filters').addEventListener('click', resetFilters);
+    if (clearFilters) clearFilters.addEventListener('click', resetFilters);
     applyFilters();
   }
   const showFallback = (button, value, message) => {
