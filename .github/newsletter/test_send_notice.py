@@ -279,6 +279,30 @@ class ApiTests(unittest.TestCase):
                 with self.assertRaises(n.Stop): bd.existing(entry())
                 self.assertTrue(all(args[0] == 'GET' for args, kw in call.call_args_list))
 
+    def test_provider_write_requires_read_only_account_verification(self):
+        bd = n.Buttondown('unit-test-placeholder')
+        with patch.object(n, 'request') as req:
+            with self.assertRaises(n.Stop): bd.call('POST', 'emails', body={})
+            req.assert_not_called()
+
+    def test_canonical_alias_never_proves_account_identity(self):
+        bd, e = n.Buttondown('unit-test-placeholder'), entry()
+        forged = {'id': 'em_1', 'canonical_url': 'https://buttondown.com/jurilupaia/archive/test',
+                  'absolute_url': 'https://buttondown.com/jurilupaia/archive/test'}
+        with patch.object(bd, 'call', return_value={'count': 1, 'results': [forged]}):
+            with self.assertRaises(n.Stop): bd.existing(e)
+        self.assertFalse(bd.account_verified)
+
+    def test_hidden_and_canonical_records_allowed_with_real_namespace_seed(self):
+        bd, e = n.Buttondown('unit-test-placeholder'), entry()
+        seed = {'id': 'em_seed', 'absolute_url': 'https://buttondown.com/jurilupaia/archive/seed', 'canonical_url': ''}
+        canonical = {**n.payload(e), 'id': 'em_2', 'absolute_url': n.article_url(e)}
+        hidden = {'id': 'em_3', 'absolute_url': None, 'canonical_url': ''}
+        editor = {'id': 'em_4', 'absolute_url': 'https://buttondown.com/emails/em_4', 'canonical_url': ''}
+        with patch.object(bd, 'call', return_value={'count': 4, 'results': [seed, canonical, hidden, editor]}):
+            self.assertEqual(bd.existing(e), canonical)
+        self.assertTrue(bd.account_verified)
+
     def test_no_credentials_sent_to_other_hosts(self):
         with self.assertRaises(n.Stop):
             n.request('GET', 'https://example.com', token='unit-test-placeholder')
