@@ -1,0 +1,37 @@
+name: Newsletter technical draft check
+
+on:
+  workflow_dispatch:
+    inputs:
+      pages_run_id:
+        description: Successful Pages run containing the current public article
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: jurilupaia-newsletter-technical-draft
+  cancel-in-progress: false
+
+jobs:
+  draft-only:
+    if: github.repository == 'jurilupa-ia/jurilupa-ia' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, verified 2026-10-12
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - run: python3 -m unittest discover -s .github/newsletter -p 'test_*.py' -v
+      - name: Create or inspect the isolated technical draft without sending
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
+          PAGES_RUN_ID: ${{ inputs.pages_run_id }}
+          NEWSLETTER_FREE_ACCOUNT: ${{ vars.NEWSLETTER_FREE_ACCOUNT }}
+        run: python3 .github/newsletter/smoke_draft.py
