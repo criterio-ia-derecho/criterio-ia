@@ -118,7 +118,7 @@
     copy(button, button.dataset.citation, 'Cita del comentario copiada.', 'Cita del comentario: selecciona y copia este texto.');
   }));
   $$('.share-source').forEach(button => button.addEventListener('click', async () => {
-    const details = { title: button.dataset.title, text: 'Fuente oficial del caso comentado en Criterio IA.', url: button.dataset.source };
+    const details = { title: button.dataset.title, text: 'Fuente oficial del caso comentado en JuriLupa IA.', url: button.dataset.source };
     if (navigator.share) {
       try { await navigator.share(details); return; } catch (error) { if (error.name === 'AbortError') return; }
     }
@@ -134,7 +134,7 @@
       const article = views.find(view => view.dataset.slug === slug);
       home.hidden = Boolean(article);
       views.forEach(view => { view.hidden = view !== article; });
-      document.title = article ? `${article.dataset.title} · Criterio IA` : 'Criterio IA · Derecho e inteligencia artificial';
+      document.title = article ? `${article.dataset.title} · JuriLupa IA` : 'JuriLupa IA · Derecho e inteligencia artificial';
       document.body.classList.toggle('reading', Boolean(article));
       if (article) {
         window.scrollTo({ top: 0, behavior: 'instant' });
@@ -193,13 +193,17 @@
   const value = document.getElementById('visit-count');
   if (!value || root.dataset.mode !== 'static') return;
 
-  const publicOrigin = 'https://criterio-ia-derecho.github.io';
-  const publicBase = '/criterio-ia/';
+  const publicOrigin = 'https://jurilupa-ia.github.io';
+  const publicBase = '/jurilupa-ia/';
+  // Stable measurement keys preserve the existing four-page history after rebranding.
+  const measurementBase = '/criterio-ia/';
   const expectedPath = root.dataset.pagePath;
   // Only a generated page at its exact public URL is eligible. Collapse index.html.
   const publicPath = () => {
     if (location.origin !== publicOrigin || typeof expectedPath !== 'string') return null;
-    if (expectedPath !== publicBase && !/^\/criterio-ia\/articulos\/[a-z0-9-]+\.html$/.test(expectedPath)) return null;
+    const articlePrefix = publicBase + 'articulos/';
+    const isArticle = expectedPath.startsWith(articlePrefix) && /^[a-z0-9-]+\.html$/.test(expectedPath.slice(articlePrefix.length));
+    if (expectedPath !== publicBase && !isArticle) return null;
     const currentPath = location.pathname === publicBase + 'index.html' ? publicBase : location.pathname;
     return currentPath === expectedPath ? expectedPath : null;
   };
@@ -213,7 +217,11 @@
   if (!location.search) {
     window.goatcounter = {
       no_events: true,
-      path: () => location.search ? null : publicPath(),
+      path: () => {
+        if (location.search) return null;
+        const path = publicPath();
+        return path === null ? null : measurementBase + path.slice(publicBase.length);
+      },
       referrer: '',
       title: ''
     };
