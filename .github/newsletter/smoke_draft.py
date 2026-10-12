@@ -9,7 +9,7 @@ import html
 import os
 import sys
 
-from send_notice import Buttondown, GitHub, Stop, article_url, git_file, verify_publication
+from send_notice import Buttondown, GitHub, Stop, article_url, email_url_kind, git_file, verify_publication
 
 SMOKE_SLUG = "prueba-tecnica-jurilupaia-v1"
 # Public idempotency request ID, NOT a credential. Preserve it across reruns.
@@ -47,7 +47,7 @@ def verify_smoke(email):
         if email.get(field) != expected[field]:
             # Never log complete provider responses or unreviewed draft content.
             raise Stop("Technical draft differs in field " + field + "; inspect normalization in Buttondown before enabling live mode.")
-    if not email.get("absolute_url", "").startswith("https://buttondown.com/jurilupaia/archive/"):
+    if email_url_kind(email) == "unexpected":
         raise Stop("Technical draft belongs to an unexpected newsletter.")
     filters = email.get("filters")
     if filters not in (None, {}, {"filters": [], "groups": [], "predicate": "and"}):
@@ -66,6 +66,7 @@ def prepare(sha, bd, verify=verify_publication, read_file=git_file):
         draft = bd.call("POST", "emails", body=smoke_payload(), key=CREATE_KEY)
     verify_smoke(draft)
     print("Technical draft ready for owner-only preview in Buttondown:", draft["id"])
+    print("Provider draft URL form:", email_url_kind(draft))
     print("No recipient contacted, no subscription changed, no queue or Git tag changed.")
     return draft["id"]
 
