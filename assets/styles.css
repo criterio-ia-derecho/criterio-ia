@@ -212,3 +212,33 @@
 .subscription-privacy,.subscription-offline{font-size:10px;line-height:1.65;color:var(--muted);margin:9px 0 0}.subscription-privacy a,.subscription-offline a{text-decoration:underline;text-underline-offset:3px}.subscription-field input:focus-visible,.subscription-controls button:focus-visible{outline:3px solid #8b543d;outline-offset:3px}.subscription-controls button:not(:disabled):hover{background:#1c343e}.subscription-controls button:not(:disabled){cursor:pointer}
 @media(max-width:900px){.subscription-note{grid-template-columns:1fr;gap:20px}.subscription-entry{max-width:620px}}
 @media(max-width:480px){.subscription-note{padding:23px 0;gap:18px}.subscription-copy h2{font-size:25px}.subscription-controls{flex-direction:column;align-items:stretch;gap:12px}.subscription-field input,.subscription-controls button{min-height:46px}.subscription-controls button{font-size:12px}.subscription-help{font-size:11px}}
+
+/* Give the email field and submit action clear separation on phone-sized layouts. */
+@media(max-width:760px){
+ .subscription-controls{flex-direction:column;align-items:stretch;gap:22px}
+ .subscription-field{flex:none;width:100%}
+ .subscription-field label{margin-bottom:11px}
+ .subscription-field input{min-height:50px;font-size:16px}
+ .subscription-controls button{min-height:50px;font-size:13px}
+ .subscription-help{margin-top:14px}
+}
+
+/* A small decorative mail indicator, using the existing text color. */
+.subscription-copy h2{display:flex;align-items:flex-start;gap:10px}
+.subscription-mail-icon{width:22px;height:22px;flex:0 0 22px;margin-top:4px}
+.subscription-copy h2 span{min-width:0}
+
+/* Keep the subscription block in the site's quiet editorial card language. */
+.subscription-note{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--lime);border-radius:2px;padding:28px 30px;gap:34px;margin-top:24px}
+.subscription-copy{border-left:0;padding-left:0}
+.subscription-copy h2{margin-bottom:11px}
+.subscription-copy p{line-height:1.65}
+.subscription-field input{background:var(--paper)}
+.subscription-controls button{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+.subscription-controls button:not(:disabled):hover{background:#e9f9b6;border-color:#e9f9b6}
+@media(max-width:760px){
+ .subscription-note{padding:24px 20px;gap:24px;margin-top:20px}
+ .subscription-copy h2{font-size:25px;line-height:1.22}
+ .subscription-copy p{font-size:12px}
+ .subscription-help,.subscription-privacy{font-size:11px;line-height:1.7}
+}
