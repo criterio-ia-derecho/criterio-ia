@@ -43,6 +43,11 @@ class SmokeTests(unittest.TestCase):
             draft = self.draft(); draft[field] = value
             with self.subTest(field=field), self.assertRaises(n.Stop): s.verify_smoke(draft)
 
+    def test_verified_hidden_draft_url_forms(self):
+        for url in (None, '', s.smoke_payload()['canonical_url'], 'https://buttondown.com/emails/em_technical'):
+            draft = self.draft(); draft['absolute_url'] = url
+            with self.subTest(url=url): s.verify_smoke(draft)
+
     def test_free_account_gate_before_network(self):
         with patch.dict(s.os.environ, {}, clear=True), patch.object(s, 'GitHub') as gh:
             with self.assertRaises(n.Stop): s.main()
