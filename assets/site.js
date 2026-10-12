@@ -36,6 +36,30 @@
     window.addEventListener('pageshow', revealArchive);
     revealArchive();
   }
+  // Method and sources remain independently reachable through the original anchors.
+  const references = [
+    { anchor: 'metodo', disclosure: $('#method-disclosure') },
+    { anchor: 'fuentes', disclosure: $('#sources-disclosure') }
+  ].filter(item => item.disclosure);
+  const revealReferences = () => {
+    let hash;
+    try { hash = decodeURIComponent(location.hash.slice(1)); } catch (_) { return; }
+    const target = document.getElementById(hash);
+    references.forEach(item => {
+      if (hash === item.anchor || (target && item.disclosure.contains(target))) item.disclosure.open = true;
+    });
+  };
+  if (references.length) {
+    $$('[data-home]').forEach(link => {
+      const item = references.find(reference => reference.anchor === link.dataset.home);
+      if (item) link.addEventListener('click', event => {
+        if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) item.disclosure.open = true;
+      });
+    });
+    window.addEventListener('hashchange', revealReferences);
+    window.addEventListener('pageshow', revealReferences);
+    revealReferences();
+  }
   let country = 'all';
   let toastTimer;
   const toast = message => {

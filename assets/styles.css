@@ -133,3 +133,31 @@
  .card-illustration{width:165px;height:124px;right:2px;bottom:0}
  .archive-summary-label{gap:4px;flex-direction:column;align-items:start}
 }
+
+/* Reading guidance and primary sources are compact reference rows, not more note cards. */
+.method.method-compact{display:block;padding-block:27px 0;border-bottom:0}
+.method-notice{font-size:12px;line-height:1.7;color:var(--muted);max-width:880px;margin:0 0 21px}
+.reference-disclosure{border-top:1px solid var(--line)}
+.reference-disclosure>summary{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:62px;list-style:none;cursor:pointer;padding:16px 0;font-size:13px;font-weight:700;line-height:1.5}
+.reference-disclosure>summary::-webkit-details-marker{display:none}
+.reference-disclosure>summary:hover{color:#496257}
+.reference-toggle{font-size:23px;font-weight:400;line-height:1;width:27px;flex-shrink:0;text-align:center;transition:transform .18s}
+.reference-disclosure[open] .reference-toggle{transform:rotate(45deg)}
+.reference-content{padding-block:2px 24px}
+.method-compact .method-intro{font-size:12px;line-height:1.7;max-width:850px;margin:0 0 20px}
+.method-compact .method-steps{grid-template-columns:1fr 1fr;gap:24px}
+.method-compact .method-step{display:block}
+.method-compact .method-step h3{font-size:12px}
+.source-section.source-compact{padding-block:0 30px}
+.source-compact .reference-disclosure{border-bottom:1px solid var(--line)}
+.source-intro{font-size:12px;color:var(--muted);margin:0 0 20px}
+.source-compact .source-link{min-height:44px}
+@media(max-width:760px){
+ .method.method-compact{padding-top:22px}
+ .method-notice{font-size:11px;margin-bottom:18px}
+ .reference-disclosure>summary{font-size:12px;min-height:62px;gap:15px}
+ .reference-content{padding-bottom:20px}
+ .method-compact .method-steps{grid-template-columns:1fr;gap:18px}
+ .source-section.source-compact{padding-bottom:24px}
+ .source-compact .source-list{gap:16px}
+}
