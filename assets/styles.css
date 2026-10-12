@@ -161,3 +161,36 @@
  .source-section.source-compact{padding-bottom:24px}
  .source-compact .source-list{gap:16px}
 }
+
+/* A quiet installation action; the browser owns the actual confirmation. */
+.hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:15px 20px}
+.install-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 13px;border:1px solid #acb9ac;border-radius:4px;background:transparent;color:var(--ink);font-size:11px;font-weight:600;line-height:1.4}
+.install-button svg{width:17px;height:17px;flex-shrink:0}
+.install-button:hover{background:#edf1e4;border-color:#6f826f}
+.install-button:disabled{opacity:.6}
+.footer-install:empty{display:none}
+.footer-install{margin-top:22px}
+.install-dialog{width:min(480px,calc(100% - 32px));max-height:calc(100dvh - 40px);padding:0;border:1px solid #c8d0c3;border-radius:14px;background:var(--paper);color:var(--ink);box-shadow:0 18px 80px #142b3540;overflow:auto;overscroll-behavior:contain}
+.install-dialog::backdrop{background:#142b3599}
+.install-panel{position:relative;padding:30px}
+.install-close{position:absolute;right:12px;top:12px;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--ink);font-size:27px;line-height:1}
+.install-close:hover{background:#e8eee8}
+.install-app-icon{border-radius:13px;margin-bottom:20px}
+.install-eyebrow{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;font-weight:700;margin:0 0 9px;color:#526753}
+.install-dialog h2{font-family:var(--serif);font-size:31px;line-height:1.1;letter-spacing:-.8px;font-weight:400;margin:0 0 15px;max-width:330px}
+.install-dialog p,.install-dialog li{font-size:12px;line-height:1.65}
+.install-dialog #install-description{color:var(--muted);margin:0 0 19px}
+.install-inapp-note{padding:12px 14px;background:#e8eee8;border-radius:5px;margin:0 0 18px}
+.install-guides{border-top:1px solid var(--line)}
+.install-guides details{border-bottom:1px solid var(--line)}
+.install-guides summary{cursor:pointer;padding:14px 0;min-height:48px;font-size:12px;font-weight:700;line-height:1.5}
+.install-guides ol{margin:0 0 17px;padding-left:20px}
+.install-guides li+li{margin-top:8px}
+.install-guides details>p{margin:0 0 17px}
+.install-dialog .install-footnote{font-size:10px;color:var(--muted);margin:18px 0 0}
+.install-status{border-left:3px solid #718c41;padding-left:12px}
+.install-native{display:flex;align-items:center;justify-content:space-between;gap:18px;width:100%;min-height:44px;padding:12px 15px;margin:0 0 18px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-size:12px}
+.install-native svg{width:17px;height:17px}
+@media(max-width:760px){.hero-description{display:block}.hero-actions{margin-top:16px}.install-button{font-size:11px}.install-panel{padding:26px 22px}.install-dialog h2{font-size:29px}}
+@media(display-mode:standalone){[data-install-control]{display:none!important}}
+@media print{.install-button,.install-dialog{display:none!important}}
