@@ -17,6 +17,25 @@
   const clearFilters = $('#clear-filters');
   const monthGroups = $$('.archive-month');
   const cards = $$('.case-card');
+  const archiveDisclosure = $('#archive-disclosure');
+  const revealArchive = () => {
+    if (!archiveDisclosure) return;
+    let hash;
+    try { hash = decodeURIComponent(location.hash.slice(1)); } catch (_) { return; }
+    const anchor = document.getElementById(hash);
+    if (hash === 'archivo' || (anchor && archiveDisclosure.contains(anchor))) archiveDisclosure.open = true;
+  };
+  if (archiveDisclosure) {
+    // A direct archive link or a return from an article should reveal its destination.
+    $$('[data-home]').filter(link => link.dataset.home === 'archivo').forEach(link => {
+      link.addEventListener('click', event => {
+        if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) archiveDisclosure.open = true;
+      });
+    });
+    window.addEventListener('hashchange', revealArchive);
+    window.addEventListener('pageshow', revealArchive);
+    revealArchive();
+  }
   let country = 'all';
   let toastTimer;
   const toast = message => {

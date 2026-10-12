@@ -52,3 +52,84 @@
 .visit-counter-explanation summary{width:fit-content;cursor:pointer;color:var(--ink);text-decoration:underline;text-underline-offset:3px;padding:4px 0}
 .visit-counter-explanation details p{margin-top:8px}
 @media(max-width:760px){.visit-counter{grid-template-columns:1fr;gap:17px;margin-top:25px;padding-top:23px}.visit-counter-value{font-size:23px}.visit-counter-value.is-count{font-size:34px}.visit-counter-explanation{max-width:none}}
+
+/* Editorial cover: three equal readings first; the complete archive opens on demand. */
+.hero{padding-block:46px 42px;gap:54px}
+.hero h1{font-size:clamp(42px,4.3vw,59px)}
+.latest-readings{padding-bottom:14px;scroll-margin-top:28px}
+.latest-readings .section-heading{margin-bottom:25px}
+.latest-readings .eyebrow{margin-bottom:12px}
+.latest-readings .section-heading h2{font-size:34px}
+.reading-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.reading-card{border:1px solid var(--line);background:var(--white);display:flex;flex-direction:column;min-width:0;transition:border-color .18s}
+.reading-card:hover{border-color:#91a095}
+.reading-card .card-top{min-height:140px;padding:22px 24px;overflow:hidden}
+.reading-card:nth-child(2) .card-top{background:#efeadc}
+.reading-card:nth-child(3) .card-top{background:#f1e6de}
+.reading-card:nth-child(2) .case-number{color:#786748}
+.reading-card:nth-child(3) .case-number{color:#8d6152}
+.reading-card .case-number{align-self:end;font-size:49px}
+.reading-card .card-top.illustrated{background:#1c343e;border-color:#3e5054}
+.reading-card .illustrated .badge{color:var(--paper);border-color:#718086;position:relative;z-index:1}
+.card-illustration{position:absolute;right:7px;bottom:0;width:185px;height:140px;pointer-events:none}
+.card-illustration .art-svg{width:100%;height:100%;max-height:none;transform:none}
+.reading-card .card-content{padding:25px}
+.reading-card h3{font-family:var(--serif);font-size:28px;line-height:1.14;letter-spacing:-.5px;font-weight:400;margin:0 0 16px}
+.reading-card h3 a:hover{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.reading-card .case-summary{font-size:13px;line-height:1.7;margin-bottom:23px}
+.reading-card .publication-date{font-size:10px;margin-bottom:15px}
+.reading-card .card-bottom{margin-top:12px;min-height:44px}
+.reading-card .card-bottom a{min-height:44px;font-size:11px}
+.archive{padding-block:38px 46px}
+.archive .section-heading{margin-bottom:22px}
+.archive .section-heading h2{font-size:34px}
+.archive-disclosure{border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
+.archive-disclosure>summary{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:72px;list-style:none;cursor:pointer;padding:17px 0}
+.archive-disclosure>summary::-webkit-details-marker{display:none}
+.archive-summary-label{display:flex;align-items:center;gap:20px;font-size:13px;font-weight:700;line-height:1.5}
+.archive-summary-count{font-size:11px;font-weight:400;color:var(--muted)}
+.archive-toggle{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line);font-size:23px;line-height:1;flex-shrink:0;transition:transform .18s}
+.archive-disclosure>summary:hover .archive-toggle{background:var(--lime);border-color:var(--lime)}
+.archive-disclosure[open] .archive-toggle{transform:rotate(45deg)}
+.archive-disclosure .when-open,.archive-disclosure[open] .when-closed{display:none}
+.archive-disclosure[open] .when-open{display:inline}
+.archive-content{padding-block:8px 30px}
+.archive-content .archive-note{margin:0 0 22px}
+@media(max-width:1050px){
+ .hero{gap:35px}
+ .reading-grid{gap:16px}
+ .reading-card .card-top{padding:18px;min-height:128px}
+ .reading-card .card-content{padding:21px}
+ .reading-card h3{font-size:25px}
+ .card-illustration{right:0;width:169px;height:127px}
+}
+@media(max-width:760px){
+ .hero{padding-block:31px 30px;gap:20px}
+ .hero h1{font-size:clamp(36px,7.4vw,49px);margin-top:17px;letter-spacing:-1.4px}
+ .hero-description p{font-size:13px}
+ .latest-readings .section-heading{margin-bottom:20px}
+ .latest-readings .section-heading h2,.archive .section-heading h2{font-size:29px}
+ .latest-readings .section-heading p{margin-top:9px}
+ .reading-grid{grid-template-columns:1fr;gap:20px}
+ .reading-card .card-top{min-height:95px;padding:18px 21px;align-items:center}
+ .reading-card .card-top.illustrated{min-height:132px}
+ .reading-card .case-number{font-size:35px;align-self:center}
+ .reading-card .card-content{padding:22px}
+ .reading-card h3{font-size:28px;max-width:580px}
+ .reading-card .case-topic{font-size:9px}
+ .reading-card .case-summary{font-size:13px;margin-bottom:18px}
+ .reading-card .case-court{font-size:10px}
+ .card-illustration{width:190px;height:143px;right:9px;bottom:-5px}
+ .archive{padding-block:28px 35px}
+ .archive .section-heading{margin-bottom:18px}
+ .archive-summary-label{gap:12px;flex-wrap:wrap}
+ .archive-disclosure>summary{min-height:68px}
+ .archive-content{padding-bottom:22px}
+}
+@media(max-width:360px){
+ .hero h1{font-size:35px}
+ .reading-card .card-content{padding:20px}
+ .reading-card h3{font-size:26px}
+ .card-illustration{width:165px;height:124px;right:2px;bottom:0}
+ .archive-summary-label{gap:4px;flex-direction:column;align-items:start}
+}
