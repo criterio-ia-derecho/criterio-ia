@@ -211,16 +211,36 @@ class GitHub:
         self.call("POST", "git/refs", body={"ref": "refs/tags/newsletter-" + stage + "/" + slug, "sha": sha})
 
 
+def email_url_kind(email):
+    """Classify without logging private URLs or mistaking a canonical alias for identity."""
+    url = email.get("absolute_url")
+    if not url:
+        return "hidden"
+    if url == email.get("canonical_url"):
+        return "canonical"  # An external article URL cannot establish newsletter identity.
+    email_id = email.get("id", "")
+    if isinstance(email_id, str) and re.fullmatch(r"[A-Za-z0-9_-]+", email_id):
+        if url.rstrip("/") == "https://buttondown.com/emails/" + email_id:
+            return "private_editor"
+    if url.startswith("https://buttondown.com/jurilupaia/archive/"):
+        return "account_archive"
+    return "unexpected"
+
+
 class Buttondown:
     def __init__(self, token):
         if not token:
             raise Stop("Buttondown secret is absent; no provider call made.")
         self.token = token
+        self.account_verified = False
 
     def call(self, method, path, **kw):
+        if method != "GET" and not self.account_verified:
+            raise Stop("Credential newsletter identity must be verified before any write.")
         return request(method, API + path, token=self.token, **kw)
 
     def existing(self, entry):
+        self.account_verified = False
         matches = []
         total = None
         seen = 0
@@ -236,10 +256,10 @@ class Buttondown:
             elif total != count:
                 raise Stop("Email history changed while reading; retry read later.")
             for email in rows:
-                archive = email.get("absolute_url", "")
-                if archive:
-                    if not archive.startswith("https://buttondown.com/jurilupaia/archive/"):
-                        raise Stop("Credential email history belongs to an unexpected newsletter; no write.")
+                kind = email_url_kind(email)
+                if kind == "unexpected":
+                    raise Stop("Credential email history belongs to an unexpected newsletter; no write.")
+                if kind == "account_archive":
                     account_seen = True
                 if (email.get("metadata", {}).get("jurilupaia_article") == entry["slug"] or
                     email.get("canonical_url") == article_url(entry) or
@@ -251,6 +271,7 @@ class Buttondown:
                     raise Stop("Cannot verify jurilupaia from existing email history; first create a harmless draft in its authenticated UI.")
                 if len(matches) > 1:
                     raise Stop("Multiple matching emails exist; manual review required.")
+                self.account_verified = True
                 return matches[0] if matches else None
             if not rows or seen > count:
                 raise Stop("Incomplete email history; no create or send.")
@@ -293,9 +314,10 @@ def validate_draft(entry, email):
             raise Stop("Provider draft differs from reviewed notice; do not overwrite or send.")
     if email.get("status") != "draft" or email.get("should_trigger_pay_per_email_billing") is not False:
         raise Stop("Unexpected provider draft/billing status.")
-    archive = email.get("absolute_url", "")
-    if not archive.startswith("https://buttondown.com/jurilupaia/archive/"):
-        raise Stop("Cannot verify draft belongs to Buttondown account jurilupaia.")
+    # Hidden drafts can expose a canonical or authenticated editor URL instead
+    # of a public archive permalink. Account identity was established before write.
+    if email_url_kind(email) == "unexpected":
+        raise Stop("Draft URL is outside the verified account/canonical/editor forms.")
     filters = email.get("filters")
     if filters not in (None, {}, {"filters": [], "groups": [], "predicate": "and"}):
         raise Stop("Unexpected audience filters; manual review required.")
