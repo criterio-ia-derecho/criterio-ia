@@ -1,0 +1,84 @@
+name: New article email notices
+
+on:
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pages_run_id:
+        description: Successful Pages run to preview (never sends)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jurilupaia-article-notices
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    if: >-
+      github.repository == 'jurilupa-ia/jurilupa-ia' &&
+      (github.event_name == 'workflow_dispatch' ||
+       ((vars.NEWSLETTER_ENABLED != 'true' ||
+         (vars.NEWSLETTER_MODE != 'draft' && vars.NEWSLETTER_MODE != 'live')) &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, verified 2026-10-12
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - run: python3 -m unittest discover -s .github/newsletter -p 'test_*.py' -v
+      - name: Preview without provider credentials or write permission
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PAGES_RUN_ID: ${{ github.event.workflow_run.id || inputs.pages_run_id }}
+          NEWSLETTER_MODE: preview
+        run: python3 .github/newsletter/send_notice.py
+
+  notify:
+    if: >-
+      github.repository == 'jurilupa-ia/jurilupa-ia' &&
+      github.event_name == 'workflow_run' &&
+      vars.NEWSLETTER_ENABLED == 'true' &&
+      (vars.NEWSLETTER_MODE == 'draft' || vars.NEWSLETTER_MODE == 'live') &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      # Write capability is needed only to create durable non-secret dedupe tags.
+      contents: write
+      actions: read
+    steps:
+      - name: Check out trusted default branch code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, verified 2026-10-12
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run local tests before exposing provider credentials
+        run: python3 -m unittest discover -s .github/newsletter -p 'test_*.py' -v
+      - name: Verify publication and process explicit notices
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
+          PAGES_RUN_ID: ${{ github.event.workflow_run.id }}
+          NEWSLETTER_ENABLED: ${{ vars.NEWSLETTER_ENABLED }}
+          NEWSLETTER_MODE: ${{ vars.NEWSLETTER_MODE }}
+          NEWSLETTER_LIVE_APPROVED: ${{ vars.NEWSLETTER_LIVE_APPROVED }}
+          NEWSLETTER_FREE_ACCOUNT: ${{ vars.NEWSLETTER_FREE_ACCOUNT }}
+        run: python3 .github/newsletter/send_notice.py
