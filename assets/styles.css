@@ -242,3 +242,16 @@
  .subscription-copy p{font-size:12px}
  .subscription-help,.subscription-privacy{font-size:11px;line-height:1.7}
 }
+
+/* Keep Buttondown's real form and responses inside the existing editorial panel. */
+.subscription-provider-frame{display:block;width:100%;height:360px;border:1px solid var(--line);border-radius:2px;background:var(--white)}
+.subscription-context-links{display:flex;flex-wrap:wrap;gap:10px 22px;margin:15px 0 0;font-size:11px;line-height:1.6}
+.subscription-context-links a{text-decoration:underline;text-underline-offset:3px;min-height:44px;display:inline-flex;align-items:center;padding-block:6px}
+.subscription-return-body{min-height:100vh;display:grid;place-items:center;padding:28px 20px}
+.subscription-return-card{width:min(100%,600px);border-top:3px solid var(--lime);padding:30px;background:var(--white)}
+.subscription-return-card h1{font-family:var(--serif);font-size:38px;line-height:1.15;font-weight:400;letter-spacing:-.8px;margin:28px 0 15px}
+.subscription-return-card>p{font-size:14px;color:var(--muted);line-height:1.7}
+.subscription-return-link{display:inline-flex;gap:16px;align-items:center;background:var(--lime);color:var(--ink);font-size:13px;font-weight:700;min-height:48px;padding:13px 18px;margin-top:12px}
+.subscription-return-link svg{width:17px;height:17px}
+.subscription-return-card .subscription-return-disclosure{font-size:10px;margin-top:28px}
+@media(max-width:760px){.subscription-provider-frame{height:390px}.subscription-context-links{gap:8px 18px}.subscription-return-card{padding:25px 21px}.subscription-return-card h1{font-size:32px}}
