@@ -2,7 +2,7 @@ name: New article email notices
 
 on:
   workflow_run:
-    workflows: ["pages build and deployment"]
+    workflows: ["pages-build-deployment"]
     branches: [main]
     types: [completed]
   workflow_dispatch:
