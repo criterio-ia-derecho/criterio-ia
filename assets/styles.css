@@ -255,3 +255,9 @@
 .subscription-return-link svg{width:17px;height:17px}
 .subscription-return-card .subscription-return-disclosure{font-size:10px;margin-top:28px}
 @media(max-width:760px){.subscription-provider-frame{height:240px}.subscription-context-links{gap:8px 18px}.subscription-return-card{padding:25px 21px}.subscription-return-card h1{font-size:32px}}
+
+/* Project contact: a quiet, left-aligned footer line that wraps on mobile. */
+.footer-contact{display:flex;align-items:flex-start;gap:9px;margin:24px 0 0;font-size:12px;line-height:1.7;color:var(--muted);text-align:left}
+.footer-contact svg{width:17px;height:17px;flex:0 0 17px;margin-top:2px;color:var(--ink)}
+.footer-contact span{min-width:0}
+.footer-contact a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
