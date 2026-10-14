@@ -1,0 +1,42 @@
+name: One authorized owner-only Morgan preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/owner-test-morgan-once.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jurilupaia-owner-preview-morgan-20261014-v1
+  cancel-in-progress: false
+
+jobs:
+  owner-preview-once:
+    if: >-
+      github.repository == 'jurilupa-ia/jurilupa-ia' &&
+      github.ref == 'refs/heads/main' &&
+      github.run_attempt == 1 &&
+      github.event.head_commit.message == 'Send one authorized owner-only Morgan newsletter preview'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # Used only for the durable once-only reservation, before any provider write.
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test all newsletter safeguards before exposing credentials
+        run: python3 -m unittest discover -s .github/newsletter -p 'test_*.py' -v
+      - name: Attempt the one approved owner preview, never a list publication
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
+          NEWSLETTER_FREE_ACCOUNT: ${{ vars.NEWSLETTER_FREE_ACCOUNT }}
+          OWNER_TEST_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: python3 .github/newsletter/owner_test_morgan.py
