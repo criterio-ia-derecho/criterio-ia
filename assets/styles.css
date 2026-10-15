@@ -44,14 +44,14 @@
 .visit-counter{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,1.15fr);gap:24px 48px;border-top:1px solid var(--line);padding-top:26px;margin-top:30px}
 .visit-counter-heading{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
 .visit-counter-label{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase}
-.visit-counter-value{font-family:var(--serif);font-size:24px;line-height:1.15;overflow-wrap:anywhere}
-.visit-counter-value.is-count{font-size:38px;font-variant-numeric:tabular-nums}
+.visit-counter-value{font-family:var(--sans);font-size:13px;line-height:1.6;color:var(--muted);overflow-wrap:anywhere}
+.visit-counter-value.is-count{font-family:var(--serif);font-size:38px;line-height:1.15;color:var(--ink);font-variant-numeric:tabular-nums}
 .visit-counter-since{font-size:11px;line-height:1.6;color:var(--muted)}
 .visit-counter-explanation{max-width:500px;font-size:12px;line-height:1.7;color:var(--muted)}
 .visit-counter-explanation p{margin:0 0 9px}
 .visit-counter-explanation summary{width:fit-content;cursor:pointer;color:var(--ink);text-decoration:underline;text-underline-offset:3px;padding:4px 0}
 .visit-counter-explanation details p{margin-top:8px}
-@media(max-width:760px){.visit-counter{grid-template-columns:1fr;gap:17px;margin-top:25px;padding-top:23px}.visit-counter-value{font-size:23px}.visit-counter-value.is-count{font-size:34px}.visit-counter-explanation{max-width:none}}
+@media(max-width:760px){.visit-counter{grid-template-columns:1fr;gap:17px;margin-top:25px;padding-top:23px}.visit-counter-value{font-size:13px}.visit-counter-value.is-count{font-size:34px}.visit-counter-explanation{max-width:none}}
 
 /* Editorial cover: three equal readings first; the complete archive opens on demand. */
 .hero{padding-block:46px 42px;gap:54px}
@@ -261,3 +261,4 @@
 .footer-contact svg{width:17px;height:17px;flex:0 0 17px;margin-top:2px;color:var(--ink)}
 .footer-contact span{min-width:0}
 .footer-contact a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+

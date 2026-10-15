@@ -257,33 +257,79 @@
     document.head.appendChild(script);
   }
 
-  // Read the public TOTAL endpoint once; it may be cached for up to four hours.
-  // The server must have “Allow adding visitor counts on your website” enabled.
+  // Retry only the public total, never the tracking script or pageview request.
+  // GoatCounter may cache this aggregate for up to four hours.
+  const unavailable = 'No se pudo actualizar el contador.';
+  value.classList.remove('is-count');
+  value.textContent = unavailable;
   if (!window.fetch || !window.AbortController) return;
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
-  value.textContent = 'Consultando…';
-  (async () => {
+
+  const counterError = (message, retryable = false) => Object.assign(new Error(message), { retryable });
+  const readTotal = async () => {
+    const controller = new AbortController();
+    let timeout;
     try {
-      const response = await fetch('https://criterioia.goatcounter.com/counter/TOTAL.json?start=2026-10-11', {
-        credentials: 'omit',
-        referrerPolicy: 'no-referrer',
-        signal: controller.signal
-      });
-      if (!response.ok) throw new Error('Counter unavailable');
-      const data = await response.json();
-      // GoatCounter returns count as a formatted string, not an HTML fragment.
-      const count = data && data.count;
-      if (typeof count !== 'string' || count.length > 30 ||
-          !/^(?:0|[1-9]\d*|[1-9]\d{0,2}(?:[, .\u00a0\u202f]\d{3})+)$/.test(count)) {
-        throw new Error('Invalid counter response');
-      }
-      value.textContent = count;
-      value.classList.add('is-count');
-    } catch (_) {
-      value.textContent = 'No disponible';
+      // Bound the whole response, including JSON reading, even if it arrives late.
+      return await Promise.race([
+        (async () => {
+          let response;
+          try {
+            response = await fetch('https://criterioia.goatcounter.com/counter/TOTAL.json?start=2026-10-11', {
+              credentials: 'omit',
+              referrerPolicy: 'no-referrer',
+              signal: controller.signal
+            });
+          } catch (_) {
+            throw counterError('Counter connection failed', true);
+          }
+          if (!response.ok) {
+            const transient = [408, 429, 500, 502, 503, 504].includes(response.status);
+            throw counterError('Counter unavailable', transient);
+          }
+          let data;
+          try {
+            data = await response.json();
+          } catch (error) {
+            // A broken body stream is transient; malformed JSON is not.
+            const transient = error && (error.name === 'TypeError' || error.name === 'AbortError');
+            throw counterError('Counter response could not be read', transient);
+          }
+          // Only render a validated provider count, never HTML or a fallback number.
+          const count = data && data.count;
+          if (typeof count !== 'string' || count.length > 30 ||
+              !/^(?:0|[1-9]\d*|[1-9]\d{0,2}(?:[, .\u00a0\u202f]\d{3})+)$/.test(count)) {
+            throw counterError('Invalid counter response');
+          }
+          return count;
+        })(),
+        new Promise((_, reject) => {
+          timeout = setTimeout(() => {
+            controller.abort();
+            reject(counterError('Counter timed out', true));
+          }, 8000);
+        })
+      ]);
     } finally {
       clearTimeout(timeout);
+    }
+  };
+
+  value.textContent = 'Consultando…';
+  (async () => {
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const count = await readTotal();
+        value.textContent = count;
+        value.classList.add('is-count');
+        return;
+      } catch (error) {
+        if (attempt === 0 && error && error.retryable) {
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        } else {
+          value.textContent = unavailable;
+          return;
+        }
+      }
     }
   })();
 })();
